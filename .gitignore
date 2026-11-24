@@ -1,0 +1,26 @@
+# --- Secrets : ne JAMAIS commiter ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+client_secret*.json
+service-account*.json
+
+# --- Données locales (volumes, sauvegardes, exports bruts) ---
+**/data/
+**/backups/
+*.sql
+*.sql.gz
+*.tar.gz
+
+# --- Système / éditeurs ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# --- Claude Code : réglages locaux ---
+.claude/settings.local.json

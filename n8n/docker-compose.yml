@@ -1,0 +1,72 @@
+# n8n + PostgreSQL + Mailpit — environnement local de développement
+# Lancer :   docker compose up -d        (depuis ce dossier, dans Ubuntu/WSL)
+# Arrêter :  docker compose down         (les données restent dans les volumes)
+# Les valeurs ${...} viennent du fichier .env (voir .env.example)
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-17-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Pas de "ports" : la base n'est joignable QUE par les autres conteneurs (réseau interne Docker)
+
+  mailpit:
+    image: axllent/mailpit:${MAILPIT_VERSION:-latest}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"   # interface web : http://localhost:8025
+    # Le port SMTP 1025 reste interne : seul n8n peut y envoyer des e-mails
+
+  n8n:
+    image: n8nio/n8n:${N8N_VERSION:-stable}   # image officielle (Docker Hub)
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:5678:5678"   # interface n8n : http://localhost:5678 (localhost uniquement)
+    environment:
+      # Base de données
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      # Chiffrement des identifiants (credentials) stockés en base
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      # URL et fuseau horaire
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://localhost:5678/
+      GENERIC_TIMEZONE: ${TIMEZONE}
+      TZ: ${TIMEZONE}
+      # E-mails envoyés par n8n lui-même (invitations, mot de passe oublié) -> Mailpit
+      N8N_EMAIL_MODE: smtp
+      N8N_SMTP_HOST: mailpit
+      N8N_SMTP_PORT: 1025
+      N8N_SMTP_SSL: "false"
+      N8N_SMTP_SENDER: ${N8N_SMTP_SENDER}
+      # Hygiène
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_RUNNERS_ENABLED: "true"
+      EXECUTIONS_DATA_PRUNE: "true"
+      EXECUTIONS_DATA_MAX_AGE: 336   # heures (14 jours) : on purge l'historique des exécutions
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  postgres_data:
+  n8n_data:

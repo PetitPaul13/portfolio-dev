@@ -1,0 +1,25 @@
+#!/bin/sh
+# Hook pre-commit : scanne les fichiers prêts à être commités (staged) avec gitleaks.
+# Si un secret (clé API, mot de passe, token...) est détecté, le commit est BLOQUÉ.
+# gitleaks tourne dans Docker (image officielle) : rien à installer sur la machine.
+# Activé par :  git config core.hooksPath .githooks
+#
+# Contourner (à éviter, seulement pour un faux positif vérifié) : git commit --no-verify
+
+GITLEAKS_IMAGE="zricethezav/gitleaks:v8.30.0"
+
+if command -v wsl.exe >/dev/null 2>&1; then
+  # Windows (Git Bash) : on lance Docker dans Ubuntu/WSL, depuis le même dossier
+  wsl.exe -d Ubuntu -- bash -c 'docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" -w /repo '"$GITLEAKS_IMAGE"' git --staged --redact --no-banner /repo'
+else
+  # Linux / macOS
+  docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" -w /repo "$GITLEAKS_IMAGE" git --staged --redact --no-banner /repo
+fi
+status=$?
+
+if [ $status -ne 0 ]; then
+  echo ""
+  echo "COMMIT BLOQUÉ : gitleaks a détecté un secret potentiel (ou n'a pas pu s'exécuter)."
+  echo "Retirez le secret du fichier, mettez-le dans un .env, puis recommencez."
+  exit 1
+fi
