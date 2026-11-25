@@ -18,7 +18,7 @@ Paul est ingénieur (ESILV 2025) et travaille en cybersécurité.
 - Données 100 % fictives. Aucune donnée réelle de client ni de l'employeur.
 - Secrets dans `.env` (hors Git), avec un `.env.example` documenté.
 - Tout en local avec Docker Compose quand c'est possible.
-- **Tenir à jour `docs/fiche-memo-client.md`** : chaque question de Paul devient une entrée (question, phrase à retenir, explication).
+- **Tenir à jour `notes/fiche-memo-client.md`** : chaque question de Paul devient une entrée (question, phrase à retenir, explication).
 - Livrables en français ET en anglais.
 
 ## Décisions prises
@@ -35,6 +35,28 @@ Paul est ingénieur (ESILV 2025) et travaille en cybersécurité.
   - Make refait le workflow (a) pour comparer les deux outils.
 - **Portfolio interactif : après dimanche.** Il comprendra des vidéos courtes, une seule démo live limitée en nombre de requêtes, et WordPress Playground pour le site.
 
+## Vision du repo : un produit fini, pas un carnet d'exercices
+- Le repo sera **renommé** et présenté comme **un produit** : la suite d'automatisation d'une agence immobilière fictive, propre et soignée. Les brouillons et exercices ne doivent pas être mis en avant.
+- Recommandation : garder le repo **privé** pendant la construction, puis le passer en public une fois le README vitrine prêt.
+- **Avant publication :** retirer `labs/` et `notes/` du repo public (ou les déplacer dans un repo privé), puis relire l'historique Git.
+
+## Structure du repo
+```
+.
+├── README.md            vitrine du produit (FR/EN), à écrire en fin de parcours
+├── CLAUDE.md            contexte et avancement (pour Claude)
+├── .githooks/           pre-commit gitleaks
+├── n8n/                 stack Docker + workflows « produit »
+│   ├── docker-compose.yml, .env.example
+│   ├── scripts/         export-workflows.sh
+│   └── workflows/       workflows livrables uniquement (01-, 02-, 03-, 99-erreurs)
+├── make/                blueprint Make + fiche comparative
+├── wordpress/           stack Docker, thème, kit de maintenance
+├── labs/                exercices d'apprentissage (hello world...) : hors produit
+└── notes/               notes perso de Paul (fiche mémo client) : hors produit
+```
+- Nommage des workflows dans n8n : `01 - ...`, `02 - ...` pour le produit. `00 - ...` ou `LAB - ...` pour les exercices : le script d'export les range automatiquement dans `labs/n8n/`.
+
 ## Planning (objectif : portfolio complet le dimanche 29/11/2026)
 | Jour | Objectif |
 |---|---|
@@ -46,7 +68,7 @@ Paul est ingénieur (ESILV 2025) et travaille en cybersécurité.
 
 ## Avancement
 - [x] Plan validé, questions répondues (24/11/2026).
-- [x] `docs/fiche-memo-client.md` créé.
+- [x] Fiche mémo client créée (déplacée dans `notes/` le 25/11).
 - [ ] **Étape 0 :** environnement Docker, puis `git init`. Git 2.56 est déjà présent.
   - [x] WSL2 installé par la DSI (WSL 3.0.5).
   - [x] Ubuntu dans WSL, avec systemd activé.
@@ -54,7 +76,7 @@ Paul est ingénieur (ESILV 2025) et travaille en cybersécurité.
   - [x] Tests OK : `hello-world`, et un port publié est joignable depuis Windows sur `localhost`.
   - [x] Utilisateur Linux `paul` (groupes `sudo` et `docker`), défini comme utilisateur par défaut dans `/etc/wsl.conf`.
   - Les commandes Docker se lancent dans Ubuntu (`wsl -d Ubuntu`). Le projet reste sur `C:\Perso\Portfolio Dev`, vu comme `/mnt/c/Perso/Portfolio Dev` depuis Ubuntu.
-- [x] `git init` (branche de travail `setup/n8n-docker`), `.gitignore` strict, `.gitattributes` (fins de ligne LF). Aucun commit pour l'instant.
+- [x] `git init`, `.gitignore` strict, `.gitattributes` (fins de ligne LF). Premier commit `34aab8a` poussé sur `main` le 24/11. Ensuite : une branche par étape (`n8n/hello-world`, `n8n/workflow-a`...).
 - [ ] Projet 1 : n8n.
   - [x] 1.1 `n8n/docker-compose.yml` : n8n 2.49.5 + PostgreSQL 17 + Mailpit.
     - Ports liés à `127.0.0.1` uniquement ; PostgreSQL n'est pas exposé.
@@ -62,9 +84,10 @@ Paul est ingénieur (ESILV 2025) et travaille en cybersécurité.
     - `n8n/.env` est généré avec des secrets aléatoires (ignoré par Git) ; `n8n/.env.example` est documenté.
     - Image `n8nio/n8n` depuis Docker Hub : `docker.n8n.io` répondait 502 le 24/11.
     - Lancer : `wsl`, puis `cd "/mnt/c/Perso/Portfolio Dev/n8n"`, puis `docker compose up -d`. Interface n8n sur http://localhost:5678, Mailpit sur http://localhost:8025.
-  - [ ] Paul crée le compte propriétaire n8n (e-mail fictif, mot de passe choisi par lui).
-  - [ ] 1.2 Concepts n8n et workflow « hello world ».
-- [x] Compte propriétaire n8n créé par Paul.
+  - [x] Compte propriétaire n8n créé par Paul.
+  - [x] 1.2 Concepts n8n et workflow « hello world » (25/11). Paul l'a construit seul avec le guide : Manual Trigger → Edit Fields → Send Email (credential SMTP « SMTP account » : host `mailpit`, port 1025, sans TLS). E-mail reçu dans Mailpit.
+    - Export : `bash scripts/export-workflows.sh` (dans WSL, dossier `n8n`). Produit → `n8n/workflows/`, exercices → `labs/n8n/`. Les credentials ne sont pas exportés, seulement leur nom et leur id.
+  - [ ] 1.3 Workflow (a) : formulaire → Google Sheets → confirmation au prospect → notification à l'agent.
 - [x] Repo GitHub : https://github.com/PetitPaul13/portfolio-dev (remote `origin`). Un seul repo pour les 3 projets.
 - [x] Scan anti-secrets : `.githooks/pre-commit` lance gitleaks v8.30.0 dans Docker (via WSL), activé par `git config core.hooksPath .githooks`.
   - Testé : bloque un faux token GitHub, laisse passer le contenu propre.

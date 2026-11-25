@@ -37,6 +37,13 @@ Les réponses courtes à sortir face à un client. Chaque entrée : **la questio
 - **Docker Desktop** emballe le moteur avec une interface graphique et une intégration Windows. Il est payant pour les entreprises de plus de 250 salariés ou de plus de 10 M$ de chiffre d'affaires.
 - Sur un serveur client (un VPS), on installe uniquement Docker Engine.
 
+### Ma base de données est-elle accessible depuis Internet ?
+**À retenir : « Votre base de données n'a aucune porte sur l'extérieur : seule votre application peut lui parler. »**
+- Docker Compose crée un réseau privé interne entre les conteneurs d'un même projet. Ils s'y joignent par leur nom (`postgres`, `mailpit`).
+- La section `ports` sert seulement à ouvrir une porte vers l'extérieur. Pas de `ports` = pas d'accès depuis la machine, ni depuis Internet.
+- Même pour les services exposés, on lie le port à `127.0.0.1` (la machine elle-même). Sur un serveur, c'est un reverse proxy avec HTTPS qui fait l'entrée.
+- C'est le principe de moindre exposition : moins de portes ouvertes, moins de surface d'attaque.
+
 ### Quel hébergeur pour un site WordPress de TPE ?
 **À retenir : « o2switch par défaut : français, environ 7 € par mois, SSH et WP-CLI inclus. »**
 - Hébergé en France, c'est un bon argument RGPD.
@@ -100,6 +107,13 @@ Les réponses courtes à sortir face à un client. Chaque entrée : **la questio
 - L'API est un service séparé (pour Claude : console.anthropic.com), facturé au nombre de tokens.
 - Avec un modèle léger, trier 100 e-mails coûte quelques centimes.
 - On fixe toujours une limite de dépense mensuelle.
+
+### Faut-il activer l'assistant IA intégré à n8n ?
+**À retenir : « Optionnel, et à décider en connaissance de cause : il envoie vos workflows et vos données d'exécution au fournisseur d'IA. »**
+- n8n propose un assistant (« Connect a model ») qui aide à construire et déboguer les workflows. Il fonctionne avec une clé API payée par l'utilisateur (Anthropic, OpenAI...).
+- Il lit les prompts, les workflows **et les données des exécutions**, qui peuvent contenir des e-mails ou des coordonnées de clients.
+- Chez un client : à valider avec lui (RGPD, confidentialité), avec une clé dédiée et une limite de dépense.
+- À ne pas confondre avec l'IA utilisée **dans** un workflow (un nœud Claude qui classe des e-mails), qui est une fonctionnalité qu'on construit volontairement.
 
 ### L'IA peut-elle répondre seule à mes clients ?
 **À retenir : « L'IA prépare, l'humain valide. »**

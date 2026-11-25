@@ -1,0 +1,140 @@
+{
+  "updatedAt": "2026-11-25T14:43:54.972Z",
+  "createdAt": "2026-11-25T14:37:21.989Z",
+  "id": "yoBx0MSmDVYuPYh0",
+  "name": "00 - Hello World",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6791458c-bf60-4ed8-9910-d7fc49749d5d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f32207f6-f8d3-4e9a-88ca-639320894fd9",
+              "name": "prenom",
+              "value": "Julie",
+              "type": "string"
+            },
+            {
+              "id": "ef0c10f0-c8f4-4b28-b1ee-6986308b98db",
+              "name": "message",
+              "value": "Ca fonctionne ! ",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "762673dd-5f22-4cd1-8cac-887f4d7f4163",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fromEmail": "contact@agence-demo.local",
+        "toEmail": "julie.martin@exemple.local",
+        "subject": "=Bonjour {{ $json.prenom }}",
+        "emailFormat": "text",
+        "text": "={{ $json.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "d0316c40-69ca-4ba0-b89a-d187ff15ad51",
+      "name": "Send an Email",
+      "webhookId": "16efa156-fd7a-4501-8b93-c1d2c18813ca",
+      "credentials": {
+        "smtp": {
+          "id": "7CZFeY9UrgXzAyaB",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "pinData": {},
+  "versionId": "0851e816-6e6c-440f-87d0-dcc8028c5040",
+  "activeVersionId": null,
+  "versionCounter": 18,
+  "triggerCount": 0,
+  "sourceWorkflowId": null,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-11-25T14:37:21.989Z",
+      "createdAt": "2026-11-25T14:37:21.989Z",
+      "role": "workflow:owner",
+      "workflowId": "yoBx0MSmDVYuPYh0",
+      "projectId": "JV8LEsG1GOeH5zkM",
+      "project": {
+        "updatedAt": "2026-11-24T14:40:32.506Z",
+        "createdAt": "2026-11-24T13:58:48.904Z",
+        "id": "JV8LEsG1GOeH5zkM",
+        "name": "Paul Guiselin <admin@agence-demo.local>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "be6a2b9c-8230-42ba-a83b-d63aca8cab40"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
+}
